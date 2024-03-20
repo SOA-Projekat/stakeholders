@@ -6,9 +6,15 @@ type UserRole int
 
 const (
 	Administrator UserRole = iota
-	Tourist
 	Author
+	Tourist
 )
+
+var UserRoleStrings = map[UserRole]string{
+	Administrator: "administrator",
+	Author:        "author",
+	Tourist:       "tourist",
+}
 
 type User struct {
 	ID                int      `json:"id" gorm:"primaryKey"`
