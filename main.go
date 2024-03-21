@@ -26,6 +26,7 @@ func initDB() *gorm.DB {
 
 	database.AutoMigrate(&model.Person{})
 	database.AutoMigrate(&model.User{})
+	database.AutoMigrate(&model.AppRating{})
 	return database
 }
 
@@ -39,17 +40,19 @@ func main() {
 	// Repositories
 	personRepo := &repo.PersonRepository{DatabaseConnection: database}
 	userRepo := &repo.UserRepository{DatabaseConnection: database}
-
+	appRatingRepo := &repo.AppRatingRepository{DatabaseConnection: database}
 	// Services
 	personService := &service.PersonService{PersonRepo: personRepo}
 	accountService := &service.AccountService{
 		PersonRepo: personRepo,
 		UserRepo:   userRepo,
 	}
+	appRatingService := &service.AppRatingService{RatingRepo: appRatingRepo}
 
 	//Handlers
 	personHandler := &handler.PersonHandler{PersonService: personService}
 	accountHandler := &handler.AccountHandler{AccountService: accountService}
+	appRatingHandler := &handler.AppRatingHandler{RatingService: appRatingService}
 
 	router := mux.NewRouter().StrictSlash(true)
 
@@ -60,6 +63,10 @@ func main() {
 	// Account Router
 	router.HandleFunc("/accounts", accountHandler.GetAll).Methods("GET")
 	router.HandleFunc("/accounts", accountHandler.BlockOrUnblock).Methods("PUT")
+
+	//Rating Router
+	router.HandleFunc("/administration/app-ratings", appRatingHandler.GetAll).Methods("GET")
+	router.HandleFunc("/administration/app-ratings", appRatingHandler.Create).Methods("POST")
 
 	permittedHeaders := handlers.AllowedHeaders([]string{"Requested-With", "Content-Type", "Authorization"})
 	permittedOrigins := handlers.AllowedOrigins([]string{"*"})
