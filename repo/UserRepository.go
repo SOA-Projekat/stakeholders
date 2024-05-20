@@ -11,6 +11,14 @@ type UserRepository struct {
 	DatabaseConnection *gorm.DB
 }
 
+func (r *UserRepository) Save(user *model.User) (*model.User, error) {
+	result := r.DatabaseConnection.Create(user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return user, nil
+}
+
 func (r *UserRepository) Get(userID int) (*model.User, error) {
 	var user model.User
 	result := r.DatabaseConnection.First(&user, "id = ?", userID)
