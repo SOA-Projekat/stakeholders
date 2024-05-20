@@ -31,6 +31,33 @@ func (handler *AccountHandler) Register(writer http.ResponseWriter, req *http.Re
 	json.NewEncoder(writer).Encode(token)
 }
 
+func (handler *AccountHandler) Login(w http.ResponseWriter, req *http.Request) {
+	var credentials model.Credentials
+	if err := json.NewDecoder(req.Body).Decode(&credentials); err != nil {
+		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
+		return
+	}
+
+	token, err := handler.AccountService.Login(&credentials)
+	if err != nil {
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
+
+	// Set authentication token as a cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "token",
+		Value:    token.AccessToken,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/",
+	})
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(token)
+}
+
 func (handler *AccountHandler) GetAll(writer http.ResponseWriter, req *http.Request) {
 	accounts, err := handler.AccountService.GetAll()
 	writer.Header().Set("Content-Type", "application/json")

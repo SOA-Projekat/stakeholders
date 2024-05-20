@@ -47,3 +47,12 @@ func (r *UserRepository) GetAll() ([]model.User, error) {
 	result := r.DatabaseConnection.Find(&users)
 	return users, result.Error
 }
+
+func (r *UserRepository) GetByUsername(username string) (*model.User, error) {
+	var user model.User
+	result := r.DatabaseConnection.First(&user, "username = ?", username)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &user, nil
+}

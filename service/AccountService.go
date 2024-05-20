@@ -77,6 +77,25 @@ func (service *AccountService) CreateUser(user *model.User) (*model.Authenticati
 	return token, nil
 }
 
+func (service *AccountService) Login(credentials *model.Credentials) (*model.AuthenticationToken, error) {
+	user, err := service.UserRepo.GetByUsername(credentials.Username)
+	if err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
+	if err != nil {
+		return nil, errors.New("invalid password")
+	}
+
+	token, err := service.GenerateToken(user.ID, user.Username, user.Role)
+	if err != nil {
+		return nil, errors.New("error generating token")
+	}
+
+	return token, nil
+}
+
 func (service *AccountService) GetAll() ([]model.Account, error) {
 
 	var accounts []model.Account

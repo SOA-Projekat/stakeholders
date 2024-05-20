@@ -64,6 +64,7 @@ func main() {
 	router.HandleFunc("/accounts", accountHandler.GetAll).Methods("GET")
 	router.HandleFunc("/accounts", accountHandler.BlockOrUnblock).Methods("PUT")
 	router.HandleFunc("/accounts/register", accountHandler.Register).Methods("POST")
+	router.HandleFunc("/login", accountHandler.Login).Methods("POST")
 
 	//Rating Router
 	router.HandleFunc("/administration/app-ratings", appRatingHandler.GetAll).Methods("GET")
